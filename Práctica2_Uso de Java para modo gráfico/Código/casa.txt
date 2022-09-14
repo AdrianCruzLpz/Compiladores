@@ -1,0 +1,22 @@
+//casa
+color 0 ;
+rectangulo 200 200 200 10 ;
+color 1 ;
+rectangulo 100 50 300 85 ;
+color 1 ;
+line 200 10 100 110 ;
+line 100 110 200 210 ;
+
+//persona
+circulo 30 300 300 ;
+color 2 ;
+line 330 315 380 315 ;
+line 380 315 400 330 ;
+line 380 315 400 300 ;
+line 350 295 350 340 ;
+
+//coche
+rectangulo 60 200 350 350 ;
+rectangulo 50 70 300 410 ;
+circulo 50 390 480 ; 
+circulo 50 390 380 ;

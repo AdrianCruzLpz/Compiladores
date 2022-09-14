@@ -1,0 +1,225 @@
+/*
+Nombre: Cruz Lopez Adrian
+Practica 6
+Opcion: Calculadora para vectores con ciclo for
+Fecha: 01 diciembre 2021
+Grupo: 3CM15
+Materia: Compiladores
+*/
+
+//Seccion de Declaraciones
+%{
+    #include "hoc.h"
+    #include <math.h>
+    #include <stdio.h>
+    #define MSDOS //Definido para practica 4
+    #define code2(c1, c2) code(c1); code(c2); //Definido para practica 4
+    #define code3(c1, c2, c3) code(c1); code(c2); code(c3); //Definido para practica 4
+	
+	void yyerror(char* s);
+    	int yylex();
+    	void warning(char* s, char* t); //Añadimos la función warning
+	//Funciones añadidas para el funcionamiento de la practica 4
+	void fpecatch();
+    	void execerror(char*s, char* t);
+    	extern void init();
+%}  
+
+//Tipo de datos en la pila de YACC
+%union{
+    double comp;
+    Vector* vec;
+    Symbol* sym; //Añadido para la practica 3
+	Inst* inst; //Añadida para la practica 4
+	int eval; //Añadido para practica 5
+} 
+
+//Modificamos esta parte para la practica 5
+%token<comp> NUMBER
+%type<comp> escalar           
+%token<sym> VAR INDEF VECTOR NUMB        
+%type<sym> number vector           
+%type<inst> exp asgn  
+%token<sym> PRINT WHILE IF ELSE BLTIN //Nuevos simbolos para la practica 5
+%type<inst> stmt stmtlst cond while if end //Nuevos simbolos para la practica 5
+%token<sym> FOR //Para la practica 6
+%type<inst> for exprn //Para la practica 6
+
+//Definimos la jerarquia de operaciones
+%right '=' //Asocia por la derecha y añadida para la practica 3
+%left OR AND //practica 5
+%left GT GE LT LE EQ NE //practica 5
+%left '+' '-' //Asocia por la izquierda
+%left '*' //Asocia por la izquierda
+%left 'x' '.' '|' //Asocia por la izquierda (MAYOR precedenmcia)
+%left UNARYMINUS NOT //practica 5
+
+//Seccion de reglas gramaticales y sus respectivas acciones
+//La gramática es la siguiente
+%%
+	list: /*NADA*/ 
+		| list '\n'
+		| list asgn '\n'		{code2(pop, STOP); return 1;}
+		| list stmt '\n'		{code(STOP); return 1;}
+		| list exp '\n'			{code2(print, STOP); return 1;}
+		| list escalar '\n'		{code2(printd, STOP); return 1;}
+		| list error '\n'		{yyerror;}
+		; 
+	exp: vector				{$$ = code2(constpush, (Inst)$1);}
+		| VAR				{$$ = code3(varpush, (Inst)$1, eval);}
+		| asgn  
+		| BLTIN '(' exp ')' {$$ = $3; code2(bltin, (Inst)$1 -> u.ptr);}
+		| exp '+' exp		{code(add);} //Caso SUMA
+		| exp '-' exp		{code(sub);} //Caso RESTA
+		| escalar '*' exp	{code(escalar);} //Caso MULT por ESCALAR 1
+		| exp '*' escalar	{code(escalar);} //Caso MULT por ESCALAR 2
+		| exp 'x' exp		{code(producto_cruz);} //Caso PROD CRUZ
+		| exp GT exp        {code(mayor);}
+      		| exp LT exp        {code(menor);}
+      		| exp GE exp        {code(mayorIgual);}
+      		| exp LE exp        {code(menorIgual);}
+      		| exp EQ exp        {code(igual);}
+      		| exp NE exp        {code(diferente);}
+      		| exp OR exp        {code(or);}
+      		| exp AND exp       {code(and);}
+      		| NOT exp           {$$ = $2; code(not);}
+		;
+	escalar: number			{code2(constpushd, (Inst)$1);}
+		| exp '.' exp 	{code(producto_punto);} //Caso PROD PUNTO
+		| '|' exp '|' 	{code(magnitud);} //Caso MAGNITUD
+		;
+	vector: '[' NUMBER NUMBER NUMBER ']'		{Vector* v = creaVector(3);
+												v -> vec[0] = $2;
+												v -> vec[1] = $3;
+												v -> vec[2] = $4;
+												$$ = install("", VECTOR, v);}
+			;
+	asgn: VAR '=' exp		{$$ = $3; code3(varpush, (Inst)$1, assign);}
+		;
+	number: NUMBER		{$$ = installd("", NUMB, $1);}
+			;
+	//Para la practica 5 agregamos lo siguiente
+	stmt: exp 								{code(pop);}
+		| PRINT exp 						{code(print); $$ = $2;}
+		| while cond stmt end 				{($1)[1] = (Inst)$3;
+                                        	($1)[2] = (Inst)$4;}
+		| if cond stmt end 					{($1)[1] = (Inst)$3;
+                                        	($1)[3] = (Inst)$4;}
+		| if cond stmt end ELSE stmt end 	{($1)[1] = (Inst)$3;
+                                        	($1)[2] = (Inst)$6;
+                                        	($1)[3] = (Inst)$7;}
+        	| for '(' exprn ';' exprn ';' exprn ')' stmt end 	{($1)[1] = (Inst)$5; //Para la practica 6
+        													($1)[2] = (Inst)$7;
+        													($1)[3] = (Inst)$9;
+        													($1)[4] = (Inst)$10;}
+		| '{' stmtlst '}' 					{$$ = $2;}
+		;
+	cond: '(' exp ')' 		{code(STOP); $$ = $2;}
+		;
+	while: WHILE 			{$$ = code3(whilecode, STOP, STOP);}
+		;
+	if: IF 					{$$ = code(ifcode);
+                            code3(STOP, STOP, STOP);}
+		;
+	end: /*NADA (epsilon)*/ {code(STOP); $$ = progp;}
+		;
+	stmtlst: /*NADA (epsilon)*/ 	{$$ = progp;}
+		| stmtlst '\n'
+		| stmtlst stmt
+		;
+	//Para la practica 6 agregamos lo siguiente
+	for: FOR 				{$$ = code(forcode); code3(STOP, STOP, STOP); code(STOP);}
+		;
+	exprn: exp 				{$$ = $1; code(STOP);}
+		| '{' stmtlst '}' 	{$$ = $2;}
+		;
+%%
+
+//Codigo de Soporte
+#include <stdio.h>
+#include <ctype.h>
+#include <signal.h>
+#include <setjmp.h>
+
+char* progname;
+int lineno = 1;
+jmp_buf begin;
+
+void main(int argc, char * argv[]) {
+    progname = argv[0];
+    init();
+    setjmp(begin);
+    signal(SIGFPE, fpecatch);
+    for(initcode(); yyparse (); initcode())
+		execute(prog);
+}
+
+int yylex(){
+	int c;
+	while((c = getchar()) == ' '|| c == '\t')
+	; //Enunciado nulo, ignoramos los espacios en blanco
+	if(c == EOF) //Si se llega al fin de archivo regresamos 0, indicando que ya no hay tokens
+		return 0;
+	if(isdigit(c)){ //Se encarga de los numeros
+		ungetc(c, stdin); //Devuelve el caracter al buffer
+		scanf("%lf", &yylval.comp); //Lexema
+		return NUMBER;
+	}
+	if(isalpha(c)){ //checar no jacs
+		Symbol* s;
+		char sbuf[200];
+		char* p = sbuf;
+		do{
+			*p++ = c;
+		}while((c = getchar()) != EOF && isalnum(c));
+		ungetc(c, stdin);
+		*p = '\0';
+		if((s = lookup(sbuf)) == (Symbol* )NULL) //Busqueda
+			s = install(sbuf, INDEF, NULL); //Lo instala
+		yylval.sym = s;
+		if(s -> type == INDEF) 
+			return VAR;
+		else 
+			return s -> type;
+	}
+	switch(c){ //Añadido para la practica 5
+        case '>': return follow('=', GE, GT);
+        case '<': return follow('=', LE, LT);
+        case '=': return follow('=', EQ, '=');
+        case '!': return follow('=', NE, NOT);
+        case '|': return follow('|', OR, '|');
+        case '&': return follow('&', AND, '&');
+        case '\n': lineno++; return '\n';
+        default: return c;
+    }
+	lineno++;
+	return c;	 
+}
+
+int follow(int expect, int ifyes, int ifno){ 
+    int c  = getchar();
+    if  (c  ==  expect)
+        return ifyes;
+    ungetc(c,   stdin);
+    return  ifno;
+}
+
+void yyerror(char* s){
+	warning(s, (char* )0);
+}
+
+void warning(char* s, char* t){
+	fprintf(stderr, "%s: %s", progname, s);
+	if(t)
+		fprintf(stderr, "%s", t);
+	fprintf(stderr, "\tCerca de la linea %d\n", lineno);
+}
+
+void execerror(char * s, char * t){
+    warning(s, t);
+    longjmp(begin, 0);
+}
+
+void fpecatch(){
+    execerror("Excepcion de punto flotante", (char *)0);
+}
