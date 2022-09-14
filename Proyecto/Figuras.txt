@@ -1,0 +1,290 @@
+/*Triangulo*/
+
+COLOR[0,71,255];
+FORWARD[-100];
+for(i=0;i<3;i=i+1){
+	FORWARD[200];
+	TURN[120];
+}
+
+/*Cuadrado*/
+
+COLOR[255,0,71];
+FORWARD[-100];
+for(i=0;i<4;i=i+1){
+	FORWARD[200];
+	TURN[90];
+}
+
+/*Pentagono*/
+
+COLOR[57,255,0];
+FORWARD[-100];
+for(i=0;i<5;i=i+1){
+	FORWARD[180];
+	TURN[72];
+}
+
+/*Hexagono*/
+
+COLOR[236,255,0];
+FORWARD[-100];
+for(i=0;i<6;i=i+1){
+	FORWARD[165];
+	TURN[60];
+}
+
+/*Heptágono*/
+
+COLOR[172,113,42];
+FORWARD[-100];
+for(i=0;i<7;i=i+1){
+	FORWARD[130];
+	TURN[52];
+}
+
+/*Octagono*
+
+COLOR[51,171,102];
+FORWARD[-50];
+for(i=0;i<8;i=i+1){
+	FORWARD[120];
+	TURN[45];
+}
+
+/*Nonagono*
+
+COLOR[172,42,42];
+FORWARD[-50];
+for(i=0;i<9;i=i+1){
+	FORWARD[100];
+	TURN[40];
+}
+
+/*Decágono*/
+
+COLOR[103,42,172];
+FORWARD[-50];
+for(i=0;i<10;i=i+1){
+	FORWARD[90];
+	TURN[36];
+}
+
+/*Estrella de David*/
+
+FORWARD[-100];
+function estrellaDavid () {
+	COLOR [42,255,0];
+    for(i=0; i<3; i=i+1){
+		FORWARD [$1];
+		TURN [120];
+    }
+	TURN[60];
+	FORWARD[$1-75];
+	TURN[120];
+	FORWARD[$1-180];
+	TURN[120];
+	COLOR [0,175,255];
+	for(j=0; j<3; j=j+1){
+		FORWARD [$1];
+		TURN [120];
+    }
+}
+estrellaDavid(300);
+
+
+/*Pentagrama*/
+
+function pentagrama () {
+	COLOR [255,0,0];
+	TURN [70];
+	FORWARD [$1];
+	x = 0;
+	while (x < 3){
+		TURN [145];
+		FORWARD [$1];
+		x=x+1;
+	}
+	TURN [142];
+	FORWARD [$1];
+}
+pentagrama(300);
+
+/*Regla*/
+
+FORWARD[-200];
+COLOR[14,0,255];
+procedure rectangulo(){
+	TURN[270];
+	FORWARD[100];
+	TURN[270];
+	FORWARD[400];
+	TURN[270];
+	FORWARD[100];
+}
+procedure regla(){
+	if($1 < 400){
+		FORWARD[4];
+		TURN[90];
+		if( $2 < 4){
+			FORWARD[-5];
+			FORWARD[5];
+			TURN[270];
+			regla($1+4,$2+1);
+		}else{
+			FORWARD[-10];
+			FORWARD[10];
+			TURN[270];
+			regla($1+4,0);
+		}
+	}else{
+		rectangulo();
+	}
+}
+regla(0, 0);
+
+/*Arbol*/
+
+procedure tree(){
+COLOR[255,118,0];
+	if($1>5){
+		FORWARD[$1];
+		TURN[20];
+		tree($1-5);
+		TURN[320];
+		tree($1-5);
+		TURN[20];
+		FORWARD[(-1)*($1)];
+	}
+}
+TURN[90];
+COLOR[255,118,0];
+TURN[180];
+FORWARD[200];
+TURN[180];
+tree(60);
+
+
+/*Espiral Cuadrada*/
+
+procedure recur(){
+	if($1<2){
+		FORWARD[$1*20];
+	}
+	else{
+		FORWARD[$1*20];
+		TURN[90];
+		recur($1-1);
+   }
+}
+COLOR[0,0,0];
+FORWARD[-200];
+TURN[270];
+FORWARD[200];
+COLOR[0,255,118];
+TURN[90];
+recur(20);
+
+/*Espirografo 1*/
+procedure circulo(){
+	for(i=0;i<366;i=i+1){
+		FORWARD[2];
+		TURN[1];
+	}
+}
+procedure espirografo(){
+	for(j=0;j<45;j=j+1){
+		COLOR[j*30,j*40,j*20];
+		circulo();
+		TURN[90];
+	}
+}
+espirografo();
+
+
+/*Espirografo 2*/
+for(i=0;i<200;i=i+1){
+   COLOR[0, i*26, i*51];
+   FORWARD[i*4];
+   TURN[145];
+}
+
+
+/*Espirografo 3*/
+procedure squiral() {
+    TURN[-90];
+    for (i = 0; i < 250; i = i + 1) {
+        FORWARD[i * 2];
+        TURN[-91];
+    }
+}
+squiral();
+
+
+/*Koch*/
+
+FORWARD[-10];
+for(i=0;i<8;i=i+1){
+	FORWARD[20];
+	TURN[55];
+	FORWARD[10];
+	TURN[70];
+	FORWARD[8];
+	TURN[230];
+	FORWARD[8];
+	TURN[55];
+	FORWARD[10];
+	TURN[260];
+	FORWARD[10];
+	TURN[60];
+	FORWARD[8];
+	TURN[240];
+	FORWARD[8];
+	TURN[50];
+	FORWARD[10];
+	TURN[60];
+	FORWARD[20];
+	TURN[45];
+	FORWARD[20];
+	TURN[55];
+	FORWARD[10];
+	TURN[70];
+	FORWARD[8];
+	TURN[230];
+	FORWARD[8];
+	TURN[55];
+	FORWARD[10];
+	TURN[260];
+	FORWARD[10];
+	TURN[60];
+	FORWARD[8];
+	TURN[240];
+	FORWARD[8];
+	TURN[40];
+	FORWARD[10];
+	TURN[70];
+	FORWARD[20];
+	TURN[270];
+}
+
+
+/*Hilbert*/
+
+COLOR[24,248,35];
+procedure Hilbert(){
+	if($1==0){
+		return 0;
+	}
+	TURN[$2];
+	Hilbert($1-1,-$2);
+	FORWARD[10];
+	TURN[-$2];
+	Hilbert($1-1,$2);
+	FORWARD[10];
+	Hilbert($1-1,$2);
+	TURN[-$2];
+	FORWARD[10];
+	Hilbert($1-1,-$2);
+	TURN[$2];
+}
+Hilbert(5,90);

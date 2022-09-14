@@ -1,0 +1,30 @@
+==============================================
+0:00 - Inicio
+0:04 - Presentación personal y del proyecto
+0:13 - Explicación de especificación YACC
+2:23 - Archivos para interpretar las instrucciones
+2:31 - Explicación del archivo "Tabla de símbolos"
+3:10 - Explicación del archivo "Máquina de Pila"
+4:16 - Archivos para la interfaz gráfica
+4:26 - Explicación del archivo "Ventana Principal"
+5:18 - Funcionamiento 
+5:35 - Triángulo
+5:42 - Cuadrado
+5:48 - Pentágono
+5:55 - Hexágono
+6:01 - Octágono
+6:08 - Nonágono
+6:15 - Estrella de David
+6:23 - Pentagrama
+6:31 - Regla
+6:39 - Árbol
+6:47 - Espiral cuadrada
+6:56 - Espirógrafo 1
+7:03 - Espirógrafo 2
+7:10 - Espirógrafo 3
+7:16 - Koch
+7:24 - Hilbert
+7:29 - Heptágono
+7:37 - Decágono
+7:46 - Conclusión
+8:44 - Despedida
